@@ -1,0 +1,14 @@
+.git
+AntiSlop
+AntiSlop.zip
+.venv
+**/__pycache__
+**/*.pyc
+data
+skinprobe-out
+ledger-out
+.env
+docs
+anti-slop
+*.md
+!tools/skinprobe/README.md

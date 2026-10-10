@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rustwatch: Rust store rotation and skin review</title>
+<link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to work surface</a>
+
+<div id="demo-banner" class="banner" hidden>
+  <strong>Demo data.</strong>
+  <span>The nine listings below were generated locally so the app can be tested without a Steam key. The analysis on them is not staged: these are real texture files run through the real analyser, defects included.</span>
+</div>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="mark" aria-hidden="true"></span>
+    <span class="brand-name">rustwatch</span>
+    <span class="brand-sub" id="catalog-source">catalog: -</span>
+  </div>
+
+  <nav class="views" aria-label="View">
+    <button id="nav-review" class="tab is-on" aria-pressed="true" aria-controls="main">Review</button>
+    <button id="nav-browse" class="tab" aria-pressed="false" aria-controls="main">Rotation</button>
+    <button id="nav-outbox" class="tab" aria-pressed="false" aria-controls="main">Discord outbox</button>
+  </nav>
+
+  <div class="toolbar">
+    <span class="status" id="watch-status">-</span>
+    <button class="btn" id="run-watch">Watch now</button>
+    <button class="btn" id="run-ingest">Scan now</button>
+    <button class="btn" id="run-bot">Bot tick</button>
+  </div>
+</header>
+
+<main id="main">
+  <section id="view-review" class="review" aria-label="Review queue">
+    <div class="queue-col">
+      <div class="queue-head">
+        <h1>Waiting</h1>
+        <span class="count" id="queue-count">0</span>
+      </div>
+      <p class="queue-note" id="queue-note">Sorted by severity, then newest first.</p>
+      <ul class="queue" id="queue" role="listbox" aria-label="Open findings" tabindex="0"></ul>
+    </div>
+
+    <div class="evidence" id="evidence">
+      <p class="placeholder">Nothing selected.</p>
+    </div>
+
+    <aside class="rail" aria-label="Decision">
+      <h2>Decision</h2>
+      <p class="rail-hint">What you record here is what stops the next scan from re-flagging this skin.</p>
+      <label class="field" for="decision-note">Note
+        <textarea id="decision-note" rows="4" placeholder="Opened the source. The resemblance is a colour blob at this size, not a mark."></textarea>
+      </label>
+      <div class="rail-actions">
+        <button class="btn btn-primary" id="decide-clear" disabled>Clear</button>
+        <button class="btn btn-danger" id="decide-escalate" disabled>Escalate</button>
+      </div>
+      <p class="rail-who">Recorded as <code id="reviewer">-</code></p>
+      <h2>Shortcuts</h2>
+      <dl class="keys">
+        <dt>j</dt><dd>next in queue</dd>
+        <dt>k</dt><dd>previous</dd>
+        <dt>Enter</dt><dd>open source in a new tab</dd>
+        <dt>c</dt><dd>clear this finding</dd>
+        <dt>e</dt><dd>escalate this finding</dd>
+        <dt>?</dt><dd>this list</dd>
+      </dl>
+    </aside>
+  </section>
+
+  <section id="view-browse" class="browse" hidden aria-label="Rotation browse">
+    <div class="weeks" id="weeks" role="tablist" aria-label="Rotation"></div>
+    <div class="filters">
+      <label class="search" for="q">Search
+        <input id="q" type="search" placeholder="name, item shortname, or skin id" autocomplete="off">
+      </label>
+      <div class="seg" role="group" aria-label="Flag filter">
+        <button class="seg-btn is-on" data-flag="" aria-pressed="true">All</button>
+        <button class="seg-btn" data-flag="open" aria-pressed="false">Flagged</button>
+        <button class="seg-btn" data-flag="clean" aria-pressed="false">No open flags</button>
+      </div>
+      <span class="result-count" id="skin-count">0 skins</span>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section id="view-outbox" class="outbox" hidden aria-label="Discord outbox">
+    <div class="outbox-head">
+      <h1>Outbox</h1>
+      <p id="discord-mode">Discord: not configured. Posts are built and kept here so you can read exactly what would have gone out.</p>
+    </div>
+    <div id="outbox-list"></div>
+  </section>
+</main>
+
+<div class="help" id="help" hidden role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+  <div class="help-card">
+    <h2>Keyboard</h2>
+    <dl class="keys">
+      <dt>j</dt><dd>next finding</dd>
+      <dt>k</dt><dd>previous finding</dd>
+      <dt>Enter</dt><dd>open the source link</dd>
+      <dt>c</dt><dd>clear</dd>
+      <dt>e</dt><dd>escalate</dd>
+      <dt>g then r</dt><dd>review view</dd>
+      <dt>g then b</dt><dd>rotation view</dd>
+      <dt>Esc</dt><dd>close this</dd>
+    </dl>
+    <button class="btn" id="help-close">Close</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="/assets/app.js"></script>
+</body>
+</html>

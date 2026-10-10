@@ -1,0 +1,99 @@
+# rustwatch. One image, three long-running processes, two one-shot profiles.
+#
+# First run (demo, no Steam key, no Discord token):
+#   cp .env.example .env
+#   docker compose --profile seed run --rm seed
+#   docker compose up -d
+# Dashboard: http://localhost:8000
+#
+# SKINS_HOST_DIR is the host path mounted at /skins. After a demo seed that is ./data/skins.
+# Point it at steamapps/workshop/content/252490 when you have real files.
+
+x-common: &common
+  image: rustwatch:0.1
+  environment:
+    DATA_DIR: /data
+    SKINS_DIR: /skins
+    STEAM_API_KEY: ${STEAM_API_KEY:-}
+    STEAM_APPID: ${STEAM_APPID:-252490}
+    STUB_CATALOG: ${STUB_CATALOG:-}
+    WATCH_INTERVAL_MIN: ${WATCH_INTERVAL_MIN:-60}
+    WATCH_ON_START: ${WATCH_ON_START:-true}
+    INGEST_LIMIT: ${INGEST_LIMIT:-50}
+    LEDGER_CROP_MAX_DISTANCE: ${LEDGER_CROP_MAX_DISTANCE:-8}
+    LEDGER_TEXTURE_MAX_DISTANCE: ${LEDGER_TEXTURE_MAX_DISTANCE:-3}
+    DISCORD_TOKEN: ${DISCORD_TOKEN:-}
+    DISCORD_ROTATION_CHANNEL: ${DISCORD_ROTATION_CHANNEL:-}
+    DISCORD_FLAG_CHANNEL: ${DISCORD_FLAG_CHANNEL:-}
+    BOT_INTERVAL_SEC: ${BOT_INTERVAL_SEC:-60}
+    BOT_DRY_RUN: ${BOT_DRY_RUN:-false}
+    PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-http://localhost:8000}
+    REVIEW_HOST: ${REVIEW_HOST:-reviewer}
+    RUSTWATCH_DEMO: ${RUSTWATCH_DEMO:-}
+  volumes:
+    - ./data:/data
+    - ${SKINS_HOST_DIR:-./data/skins}:/skins
+
+services:
+  app:
+    <<: *common
+    build: .
+    command: ["python", "-m", "rustwatch", "serve"]
+    ports:
+      - "${PORT:-8000}:8000"
+    volumes:
+      - ./data:/data
+      - ${SKINS_HOST_DIR:-./data/skins}:/skins:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/api/health"]
+      interval: 30s
+      timeout: 4s
+      start_period: 12s
+      retries: 3
+
+  watch:
+    <<: *common
+    build: .
+    command: ["python", "-m", "rustwatch", "watch"]
+    depends_on:
+      app:
+        condition: service_started
+    restart: unless-stopped
+
+  bot:
+    <<: *common
+    build: .
+    command: ["python", "-m", "rustwatch", "bot"]
+    depends_on:
+      app:
+        condition: service_started
+    restart: unless-stopped
+
+  seed:
+    <<: *common
+    build: .
+    profiles: ["seed"]
+    command: ["python", "-m", "rustwatch", "seed", "--reset"]
+    environment:
+      DATA_DIR: /data
+      SKINS_DIR: /skins
+      RUSTWATCH_DEMO: "1"
+
+  smoke:
+    <<: *common
+    build: .
+    profiles: ["smoke"]
+    command: ["python", "-m", "rustwatch", "smoke"]
+    environment:
+      DATA_DIR: /tmp/smoke-data
+      SKINS_DIR: /tmp/smoke-skins
+
+  ledger:
+    <<: *common
+    build: .
+    profiles: ["ledger"]
+    command: ["python", "-m", "rustwatch", "ledger", "--site", "/site/example-shop.json", "--out", "/data/ledger/runs/manual"]
+    volumes:
+      - ./data:/data
+      - ./tools/skinprobe/sites:/site:ro

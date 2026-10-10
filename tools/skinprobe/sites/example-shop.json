@@ -1,0 +1,16 @@
+{
+  "name": "example-shop",
+  "notes": "TEMPLATE, not a live config. Every field except name/startUrls/itemUrlPatterns is optional. Point startUrls at a category page, then check one real product URL against itemUrlPatterns before letting it walk. Set skinprobe-ledger's User-Agent contact via --user-agent or edit FetchPolicy.DEFAULT_UA, and read each site's terms before the first live run.",
+  "startUrls": ["https://shop.test/brushes"],
+  "itemUrlPatterns": ["/brushes/*"],
+  "skipUrlPatterns": ["*/cart*", "*/login*", "*/account*", "*/search*"],
+  "followListingPatterns": ["/brushes", "*/page/*"],
+  "maxDepth": 2,
+  "maxItems": 25,
+  "minIntervalSec": 4.0,
+  "respectRobots": true,
+  "licenceSelectors": ["div.licence", "section.license", "#license-terms"],
+  "imageSelectors": [],
+  "imageHostAllow": ["shop.test", "cdn.shop.test"],
+  "maxImagesPerItem": 3
+}
